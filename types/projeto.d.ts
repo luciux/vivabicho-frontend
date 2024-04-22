@@ -2,11 +2,11 @@ declare namespace Projeto {
     type Animal = {
         id?: number,
         nome: string,
-        especie: number,
+        especieId: number,
         raca: string,
-        cor: string,
         idade: number,
         sexo: string,
+        cor: string,
         tamanho: string,
         peso: number,
         disponivelParaAdocao: boolean,

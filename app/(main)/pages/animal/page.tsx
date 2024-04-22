@@ -21,10 +21,10 @@ import { AnimalService } from '@/service/AnimalService';
 const Crud = () => {
     let emptyAnimal: Projeto.Animal = {
         nome: '',
-        especie: 0,
+        especieId: 1,
         raca: '',
         cor: '',
-        idade: 0,    
+        idade: 0,
         sexo: '',
         tamanho: '',
         peso: 0,
@@ -32,7 +32,7 @@ const Crud = () => {
         descricao: '',
     };
 
-    const [animals, setAnimals] = useState(null);
+    const [animals, setAnimals] = useState<Projeto.Animal[]>([]);
     const [animalDialog, setAnimalDialog] = useState(false);
     const [deleteAnimalDialog, setDeleteAnimalDialog] = useState(false);
     const [deleteAnimalsDialog, setDeleteAnimalsDialog] = useState(false);
@@ -42,17 +42,16 @@ const Crud = () => {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-    const usuarioService = new AnimalService();
+    const animalService = new AnimalService();
 
     useEffect(() => {
-        // AnimalService.getAnimals().then((data) => setAnimals(data as any));
-        usuarioService.getAnimals().then((response) => {
+        animalService.getAnimals().then((response) => {
             console.log(response.data);
             setAnimals(response.data);
         }).catch((error) => {
             console.log(error);
         });
-    }, []);
+    }, [animals]);
 
 
     const openNew = () => {
@@ -76,6 +75,47 @@ const Crud = () => {
 
     const saveAnimal = () => {
         setSubmitted(true);
+        if (!animal.id) {
+            animalService.insertAnimal(animal).then((response) => {
+                setAnimalDialog(false);
+                setAnimal(emptyAnimal);
+                setAnimals([])
+                toast.current?.show({
+                    severity: 'info',
+                    summary: 'Animal criado com sucesso',
+                    detail: 'Animal criado com sucesso',
+                    life: 3000
+                });
+            }).catch((error) => {
+                console.log(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Erro ao criar animal',
+                    detail: 'Erro ao criar animal',
+                    life: 3000
+                });
+            });
+        } else {
+            animalService.updateAnimal(animal).then((response) => {
+                setAnimalDialog(false);
+                setAnimal(emptyAnimal);
+                setAnimals([])
+                toast.current?.show({
+                    severity: 'info',
+                    summary: 'Animal atualizado com sucesso',
+                    detail: 'Animal atualizado com sucesso',
+                    life: 3000
+                });
+            }).catch((error) => {
+                console.log(error);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Erro ao atualizar animal',
+                    detail: 'Erro ao atualizar animal' + error.message,
+                    life: 3000
+                });
+            });
+        }
 
         // if (animal.name.trim()) {
         //     let _animals = [...(animals as any)];
@@ -113,22 +153,36 @@ const Crud = () => {
         setAnimalDialog(true);
     };
 
-    const confirmDeleteAnimal = (Animal: Projeto.Animal) => {
+    const confirmDeleteAnimal = (animal: Projeto.Animal) => {
         setAnimal(animal);
         setDeleteAnimalDialog(true);
     };
 
     const deleteAnimal = () => {
-        // let _animals = (animals as any)?.filter((val: any) => val.id !== animal.id);
-        // setAnimals(_animals);
-        // setDeleteAnimalDialog(false);
-        // setAnimal(emptyAnimal);
-        // toast.current?.show({
-        //     severity: 'success',
-        //     summary: 'Successful',
-        //     detail: 'Animal Deleted',
-        //     life: 3000
-        // });
+        setSubmitted(true);
+        if (!animal.id || typeof animal.id !== 'number' || animal.id <= 0) {
+            console.error('ID de animal inválido:', animal.id);
+            return;
+        }
+        animalService.deleteAnimal(animal.id).then((response) => {
+            setDeleteAnimalDialog(false);
+            setAnimal(emptyAnimal);
+            setAnimals([])
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Animal deletado com sucesso',
+                detail: 'Animal deletado com sucesso',
+                life: 3000
+            });
+        }).catch((error) => {
+            console.log(error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Erro ao deletar animal',
+                detail: 'Erro ao deletar animal',
+                life: 3000
+            });
+        });
     };
 
     // const findIndexById = (id: string) => {
@@ -358,8 +412,36 @@ const Crud = () => {
                             {submitted && !animal.nome && <small className="p-invalid">Nome é um campo obrigatório.</small>}
                         </div>
                         <div className="field">
+                            <label htmlFor="raca">Raça</label>
+                            <InputText
+                                id="raca"
+                                value={animal.raca}
+                                onChange={(e) => onInputChange(e, 'raca')}
+                                required
+                                autoFocus
+                                className={classNames({
+                                    'p-invalid': submitted && !animal.raca
+                                })}
+                            />
+                            {submitted && !animal.raca && <small className="p-invalid">Raça é um campo obrigatório.</small>}
+                        </div>
+                        <div className="field">
+                            <label htmlFor="sexo">Sexo</label>
+                            <InputText
+                                id="sexo"
+                                value={animal.sexo}
+                                onChange={(e) => onInputChange(e, 'sexo')}
+                                required
+                                autoFocus
+                                className={classNames({
+                                    'p-invalid': submitted && !animal.sexo
+                                })}
+                            />
+                            {submitted && !animal.sexo && <small className="p-invalid">Sexo é um campo obrigatório.</small>}
+                        </div>
+                        <div className="field">
                             <label htmlFor="observacao">Observações</label>
-                            <InputTextarea id="observacao" value={animal.descricao} onChange={(e) => onInputChange(e, 'observacoes')} required rows={3} cols={20} />
+                            <InputTextarea id="observacao" value={animal.descricao} onChange={(e) => onInputChange(e, 'descricao')} required rows={3} cols={20} />
                         </div>
 
                         <div className="formgrid grid">
