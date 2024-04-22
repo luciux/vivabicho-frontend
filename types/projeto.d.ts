@@ -6,7 +6,10 @@ declare namespace Projeto {
         raca: string,
         cor: string,
         idade: number,
-        porte: number,
-        observacoes: string,
+        sexo: string,
+        tamanho: string,
+        peso: number,
+        disponivelParaAdocao: boolean,
+        descricao: string,
     }
 }

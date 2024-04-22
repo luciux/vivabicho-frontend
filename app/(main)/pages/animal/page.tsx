@@ -15,6 +15,7 @@ import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { Projeto } from '@/types';
+import { AnimalService } from '@/service/AnimalService';
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 const Crud = () => {
@@ -23,9 +24,12 @@ const Crud = () => {
         especie: 0,
         raca: '',
         cor: '',
-        idade: 0,
-        porte: 0,
-        observacoes: ''
+        idade: 0,    
+        sexo: '',
+        tamanho: '',
+        peso: 0,
+        disponivelParaAdocao: true,
+        descricao: '',
     };
 
     const [animals, setAnimals] = useState(null);
@@ -38,9 +42,16 @@ const Crud = () => {
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
+    const usuarioService = new AnimalService();
 
     useEffect(() => {
         // AnimalService.getAnimals().then((data) => setAnimals(data as any));
+        usuarioService.getAnimals().then((response) => {
+            console.log(response.data);
+            setAnimals(response.data);
+        }).catch((error) => {
+            console.log(error);
+        });
     }, []);
 
 
@@ -348,7 +359,7 @@ const Crud = () => {
                         </div>
                         <div className="field">
                             <label htmlFor="observacao">Observações</label>
-                            <InputTextarea id="observacao" value={animal.observacoes} onChange={(e) => onInputChange(e, 'observacoes')} required rows={3} cols={20} />
+                            <InputTextarea id="observacao" value={animal.descricao} onChange={(e) => onInputChange(e, 'observacoes')} required rows={3} cols={20} />
                         </div>
 
                         <div className="formgrid grid">
